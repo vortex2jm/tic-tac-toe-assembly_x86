@@ -1,3 +1,7 @@
+; pre-processor directives
+%ifndef macros_
+%define macros_
+
 ; draw_line(x1, y1, x2, y2, color)
 %macro draw_line 5
 	mov		byte[cor], %5	
@@ -23,3 +27,5 @@
 	push		ax
 	call circle
 %endmacro
+
+%endif
