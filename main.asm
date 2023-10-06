@@ -84,10 +84,22 @@ segment code
         jmp entrypoint
 
     start_game:
-        draw_line 200, 100, 200, 400
-        draw_line 300, 100, 300, 400
-        draw_line 100, 300, 400, 300
-        draw_line 100, 200, 400, 200
+        ; half screen width
+        ; 640 / 2 = 320
+        ; first vertical line
+        ; 320 - 50 = 270
+        ; second vertical line
+        ; 320 + 50 = 370
+        ; half screen height
+        ; 480 / 2 = 240
+        ; first horizontal line 
+        ; 240 - 50 = 190
+        ; second horizontal line
+        ; 240 + 50 = 290
+        draw_line 270, 100, 270, 400
+        draw_line 370, 100, 370, 400
+        draw_line 170, 190, 470, 190
+        draw_line 170, 290, 470, 290
 
     end_game:
         mov ah, 0x4c
