@@ -96,10 +96,12 @@ segment code
         ; 240 - 50 = 190
         ; second horizontal line
         ; 240 + 50 = 290
-        draw_line 270, 100, 270, 400
-        draw_line 370, 100, 370, 400
-        draw_line 170, 190, 470, 190
-        draw_line 170, 290, 470, 290
+
+        draw_line 270, 100, 270, 400, branco_intenso	
+        draw_line 370, 100, 370, 400, branco_intenso	
+        draw_line 170, 190, 470, 190, branco_intenso	
+        draw_line 170, 290, 470, 290, branco_intenso	
+        draw_circle 220, 240, 20, cyan
 
     end_game:
         mov ah, 0x4c
