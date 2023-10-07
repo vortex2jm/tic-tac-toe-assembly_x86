@@ -8,7 +8,6 @@ segment data
 
     command_error   db 'Invalid command', 0xd, 0xa, '$'
     play_error      db 'Invalid play, this symble has already been played', 0xd, 0xa, '$' 
-    result_msg      db '000$'
 
     linha   	    dw  	0x0
     coluna  	    dw  	0x0
@@ -81,62 +80,45 @@ segment code
         int 0x21
 
     start_game:
-        ; SCALE INFO------------------------------;
-        ; half screen width
-        ; 640 / 2 = 320
-        ; first vertical line
-        ; 320 - 50 = 270
-        ; second vertical line
-        ; 320 + 50 = 370
-
-        ; half screen height
-        ; 480 / 2 = 240
-        ; first horizontal line 
-        ; 240 - 50 = 190
-        ; second horizontal line
-        ; 240 + 50 = 290
-
         ;-----------------------------------------;
         ; Board lines
         draw_line 270, 100, 270, 400, intense_white	
         draw_line 370, 100, 370, 400, intense_white	
         draw_line 170, 190, 470, 190, intense_white	
         draw_line 170, 290, 470, 290, intense_white	
-        
-        ;-----------------------------------------;
-        ; Circles from top line
-        draw_circle 220, 340, 20, cyan  ;11
-        draw_circle 320, 340, 20, cyan  ;12
-        draw_circle 420, 340, 20, cyan  ;13
-        
-        ; Circles from middle line
-        draw_circle 220, 240, 20, cyan  ;21
-        draw_circle 320, 240, 20, cyan  ;22 
-        draw_circle 420, 240, 20, cyan  ;23
-
-        ; Circles from bottom line
-        draw_circle 220, 140, 20, cyan  ;31
-        draw_circle 320, 140, 20, cyan  ;32
-        draw_circle 420, 140, 20, cyan  ;33
-
-        ;-----------------------------------------;
-        ; X from top line
-        draw_x 200, 320, 240, 360, magenta  ;11 
-        draw_x 300, 320, 340, 360, magenta  ;12
-        draw_x 400, 320, 440, 360, magenta  ;13
-        
-        ; X from middle line
-        draw_x 200, 220, 240, 260, magenta  ;21
-        draw_x 300, 220, 340, 260, magenta  ;22
-        draw_x 400, 220, 440, 260, magenta  ;23
-
-        ; X from bottom line
-        draw_x 200, 120, 240, 160, magenta  ;31
-        draw_x 300, 120, 340, 160, magenta  ;32
-        draw_x 400, 120, 440, 160, magenta  ;33
-
-        ;jmp commands_buffer
-        ;jmp entrypoint
+        ;
+        ;;-----------------------------------------;
+        ;; Circles from top line
+        ;draw_circle 220, 340, 20, cyan  ;11
+        ;draw_circle 320, 340, 20, cyan  ;12
+        ;draw_circle 420, 340, 20, cyan  ;13
+        ;
+        ;; Circles from middle line
+        ;draw_circle 220, 240, 20, cyan  ;21
+        ;draw_circle 320, 240, 20, cyan  ;22 
+        ;draw_circle 420, 240, 20, cyan  ;23
+;
+        ;; Circles from bottom line
+        ;draw_circle 220, 140, 20, cyan  ;31
+        ;draw_circle 320, 140, 20, cyan  ;32
+        ;draw_circle 420, 140, 20, cyan  ;33
+;
+        ;;-----------------------------------------;
+        ;; X from top line
+        ;draw_x 200, 320, 240, 360, magenta  ;11 
+        ;draw_x 300, 320, 340, 360, magenta  ;12
+        ;draw_x 400, 320, 440, 360, magenta  ;13
+        ;
+        ;; X from middle line
+        ;draw_x 200, 220, 240, 260, magenta  ;21
+        ;draw_x 300, 220, 340, 260, magenta  ;22
+        ;draw_x 400, 220, 440, 260, magenta  ;23
+;
+;
+        ;; X from bottom line
+        ;draw_x 200, 120, 240, 160, magenta  ;31
+        ;draw_x 300, 120, 340, 160, magenta  ;32
+        ;draw_x 400, 120, 440, 160, magenta  ;33
 
 
     ; This approach validates one each time
@@ -156,7 +138,7 @@ segment code
 
          
         validate_letter_play:   ; Verifying repeated letter plays
-        mov ah, [last_play]
+        mov ah, [last_play]     ; FALTA ATUALIZAR A ULTIMA JOGADA 
         cmp ah, al
         je invalid_play
         xor ah, ah
@@ -174,7 +156,7 @@ segment code
         xor ah, ah
         push ax
         loop lc_parse 
-        jmp execute_command
+        jmp calculate_matrix_index
 
     invalid_command:
         mov dx, command_error
@@ -188,24 +170,25 @@ segment code
         int 0x21
         jmp command_buffer
 
-    execute_command:
-        pop bx
-        mov [result_msg+2], bl
-        pop bx
-        mov [result_msg+1], bl
-        pop bx
-        mov [result_msg], bl
-        mov dx, result_msg
 
-        ; Reseting video mode
-        mov al, [prev_video_mode]
-        mov ah, 0
-        int 10h
-
-        ; Printing result
-        mov ah, 0x9
-        int 0x21
+    calculate_matrix_index:
+        ;pop bx
+        ;sub bx, 0x31
+        ;mul bx, 0x3
+        ;pop ax
+        ;sub ax, 0x31
+        ;add ax, bx
+        ;pop bx
         
+    draw_move:
+        pop cx
+        sub cx, 0x31
+        pop dx
+        sub dx, 0x31
+        draw_circle_on_board dx, cx, 20, red
+
+        ; Calcular indice da matriz aqui
+
         mov ah, 0x4c
         int 0x21
 
