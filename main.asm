@@ -3,12 +3,17 @@
 ; DS
 segment data
     cor		        db		intense_white
-    prev_video_mode	db		0
+    prev_video_mode	db		0x0
+    last_play       db      0x0
 
-    linha   	    dw  	0
-    coluna  	    dw  	0
-    deltax		    dw		0
-    deltay		    dw		0
+    command_error   db 'Invalid command', 0xd, 0xa, '$'
+    play_error      db 'Invalid play, this symble has already been played', 0xd, 0xa, '$' 
+    result_msg      db '000$'
+
+    linha   	    dw  	0x0
+    coluna  	    dw  	0x0
+    deltax		    dw		0x0
+    deltay		    dw		0x0
 
     ; Saving colors
     black		    equ		0x0
@@ -37,10 +42,10 @@ stacktop:
 segment code
 ..start:
     ;Setting up segment registers
-    MOV 	AX,data						
-	MOV 	DS,AX
-	MOV 	AX,stack	
-	MOV 	ss,AX
+    MOV 	ax,data						
+	MOV 	ds,ax
+	MOV 	ax,stack	
+	MOV 	ss,ax
 	MOV 	sp,stacktop
 
     ; Saving currently video mode
@@ -57,10 +62,10 @@ segment code
     entrypoint:
         mov ah, 0x7
         int 0x21
-        mov ah, 0x63    ;c character    
+        mov ah, 'c'    ;0x63    
         cmp ah, al
         je start_game  
-        mov ah, 0x73    ;s character
+        mov ah, 's'    ;0x73 character
         cmp ah, al
         je  end_game
         jmp entrypoint
@@ -130,7 +135,80 @@ segment code
         draw_x 300, 120, 340, 160, magenta  ;32
         draw_x 400, 120, 440, 160, magenta  ;33
 
-        jmp entrypoint
+        ;jmp commands_buffer
+        ;jmp entrypoint
+
+
+    ; This approach validates one each time
+    ; We can also read all input and validate after (Discuss)
+    command_buffer:
+        ; Parsing first character (letter)
+        mov ah, 0x7
+        int 0x21
+        mov ah, 'X'
+        cmp ah, al
+        je validate_letter_play     ; if letter equal X, jump to validate repeated plays
+
+        validate_letter_command:
+        mov ah, 'C'
+        cmp ah, al    
+        jne invalid_command
+
+         
+        validate_letter_play:   ; Verifying repeated letter plays
+        mov ah, [last_play]
+        cmp ah, al
+        je invalid_play
+        xor ah, ah
+        push ax
+
+        ; Parsing line and comlumn
+        validate_numbers:
+        mov cx, 0x2 
+        lc_parse:
+        mov ah, 0x7
+        int 0x21
+        mov ah, '4'             ; Check if number is greater or equal 4
+        cmp al, ah
+        jge invalid_command
+        xor ah, ah
+        push ax
+        loop lc_parse 
+        jmp execute_command
+
+    invalid_command:
+        mov dx, command_error
+        mov ah, 0x9
+        int 0x21
+        jmp command_buffer
+
+    invalid_play:
+        mov dx, play_error
+        mov ah, 0x9
+        int 0x21
+        jmp command_buffer
+
+    execute_command:
+        pop bx
+        mov [result_msg+2], bl
+        pop bx
+        mov [result_msg+1], bl
+        pop bx
+        mov [result_msg], bl
+        mov dx, result_msg
+
+        ; Reseting video mode
+        mov al, [prev_video_mode]
+        mov ah, 0
+        int 10h
+
+        ; Printing result
+        mov ah, 0x9
+        int 0x21
+        
+        mov ah, 0x4c
+        int 0x21
+
 
 ;--FIGURES-----------------------------------------------;
 
