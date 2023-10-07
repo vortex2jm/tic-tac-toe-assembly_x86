@@ -40,19 +40,19 @@ stacktop:
 ; CS
 segment code
 ..start:
-    ;Setting up segment registers
-    MOV 	ax,data						
-	MOV 	ds,ax
-	MOV 	ax,stack	
-	MOV 	ss,ax
-	MOV 	sp,stacktop
+  ;Setting up segment registers
+  mov 	ax,data						
+	mov 	ds,ax
+	mov 	ax,stack	
+	mov 	ss,ax
+	mov 	sp,stacktop
 
-    ; Saving currently video mode
+  ; Saving currently video mode
 	mov  		ah,0Fh
 	int  		10h
 	mov  		[prev_video_mode],al   
 
-    ; Change video mode for graphic 640x480 16 colors 
+  ; Change video mode for graphic 640x480 16 colors 
 	mov     	al,12h
 	mov     	ah,0
 	int     	10h	
@@ -80,12 +80,7 @@ segment code
         int 0x21
 
     start_game:
-        ;-----------------------------------------;
-        ; Board lines
-        draw_line 270, 100, 270, 400, intense_white	
-        draw_line 370, 100, 370, 400, intense_white	
-        draw_line 170, 190, 470, 190, intense_white	
-        draw_line 170, 290, 470, 290, intense_white	
+      call draw_board
         ;
         ;;-----------------------------------------;
         ;; Circles from top line
@@ -192,6 +187,16 @@ segment code
         mov ah, 0x4c
         int 0x21
 
+
+
+  draw_board: 
+    ;-----------------------------------------;
+    ; Board lines
+    draw_line 270, 100, 270, 400, intense_white	
+    draw_line 370, 100, 370, 400, intense_white	
+    draw_line 170, 190, 470, 190, intense_white	
+    draw_line 170, 290, 470, 290, intense_white	
+    ret
 
 ;--FIGURES-----------------------------------------------;
 
