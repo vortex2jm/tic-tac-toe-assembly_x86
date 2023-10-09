@@ -52,7 +52,7 @@
 %endmacro
 
 
-;draw_circle(x, y, r, color)
+;draw_circle_on_board(x, y, r, color)
 %macro draw_circle_on_board 4
 	mov byte[cor], %4
 	mov ax, 100
@@ -77,6 +77,72 @@
 	mov bx, %3
 	push bx
 	call circle
+%endmacro
+
+;draw_x_on_board(x, y, xsize, color)
+%macro draw_x_on_board 4
+	mov byte[cor], %4
+	mov ax, 100
+	mov bx, %2
+
+	push dx
+	mul bx
+	pop dx
+	
+	add ax, 220
+  sub ax, %3
+  ; x converted 
+	push ax
+  add ax, %3
+  push ax
+
+	mov ax, 100
+	mov bx, %1
+	
+	push dx
+	mul bx
+	pop dx
+	
+	mov bx, 340
+  ; y converted
+	sub bx, ax
+
+  ; ax -> x converted
+  pop ax
+
+  ; yc - xsize
+  sub bx, %3
+	push bx
+
+  ; ax -> x + xc
+  add ax, %3
+  push ax
+
+  add bx, %3
+  add bx, %3
+  ; bx -> yc + xsize
+  push bx
+
+	call line
+
+  ; ax -> xc + xsize
+  ; bx -> yc + xsize
+  push ax
+  sub bx, %3
+  sub bx, %3
+  ; bx -> yc - xsize
+  push bx
+
+  sub ax, %3
+  sub ax, %3
+  ; ax -> xc - xsize
+  push ax
+  add bx, %3
+  add bx, %3
+  ; bx -> yc + xsize
+  push bx
+
+  call line
 %endmacro
 
 %endif
