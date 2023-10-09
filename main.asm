@@ -1,200 +1,182 @@
 %include "macros.asm"
 
-; DS
 segment data
-    cor		        db		intense_white
-    prev_video_mode	db		0x0
-    last_play       db      0x0
+  cor		          db		intense_white
+  prev_video_mode db		0x0
+  last_play       db    0x0
+  current_play    db    0x0
 
-    command_error   db 'Invalid command', 0xd, 0xa, '$'
-    play_error      db 'Invalid play, this symble has already been played', 0xd, 0xa, '$' 
+  command_error   db 'Invalid command', 0xd, 0xa, '$'
+  play_error      db 'Invalid play, this symble has already been played', 0xd, 0xa, '$' 
 
-    linha   	    dw  	0x0
-    coluna  	    dw  	0x0
-    deltax		    dw		0x0
-    deltay		    dw		0x0
+  linha   	      dw  	0x0
+  coluna  	      dw  	0x0
+  deltax		  dw	0x0
+  deltay		  dw	0x0
 
-    ; Saving colors
-    black		    equ		0x0
-    blue		    equ		0x1
-    green		    equ		0x2
-    cyan		    equ		0x3
-    red	            equ		0x4
-    magenta		    equ		0x5
-    brown		    equ		0x6
-    white		    equ		0x7
-    grey		    equ		0x8
-    light_blue	    equ		0x9
-    light_green	    equ		0xa
-    light_cyan	    equ		0xb
-    pink		    equ		0xc
-    light_magenta	equ		0xd
-    yellow		    equ		0xe
-    intense_white	equ		0xf
+  ; Saving colors
+  black		      equ		0x0
+  blue		      equ		0x1
+  green		      equ		0x2
+  cyan		      equ		0x3
+  red	          equ		0x4
+  magenta		  equ		0x5
+  brown		      equ		0x6
+  white		      equ		0x7
+  grey		      equ		0x8
+  light_blue	  equ		0x9
+  light_green	  equ		0xa
+  light_cyan	  equ		0xb
+  pink		      equ		0xc
+  light_magenta	  equ		0xd
+  yellow		  equ		0xe
+  intense_white	  equ		0xf
 
-; SS
+
 segment stack stack						
-		resb 512	; 256 bytes for stack
+  resb 512	; 512 bytes for stack
+
 stacktop:
 
-; CS
 segment code
 ..start:
-    ;Setting up segment registers
-    MOV 	ax,data						
-	MOV 	ds,ax
-	MOV 	ax,stack	
-	MOV 	ss,ax
-	MOV 	sp,stacktop
+  ;Setting up segment registers
+  mov 	ax,data						
+  mov 	ds,ax
+  mov 	ax,stack	
+  mov 	ss,ax
+  mov 	sp,stacktop
 
-    ; Saving currently video mode
-	mov  		ah,0Fh
-	int  		10h
-	mov  		[prev_video_mode],al   
+  ; Saving currently video mode
+  mov  		ah,0Fh
+  int  		10h
+  mov  		[prev_video_mode],al   
 
-    ; Change video mode for graphic 640x480 16 colors 
-	mov     	al,12h
-	mov     	ah,0
-	int     	10h	
+  ; Change video mode for graphic 640x480 16 colors 
+  mov     	al,12h
+  mov     	ah,0
+  int     	10h	
 
-    ;==============================;
-    entrypoint:
-        mov ah, 0x7
-        int 0x21
-        mov ah, 'c'    ;0x63    
-        cmp ah, al
-        je start_game  
-        mov ah, 's'    ;0x73 character
-        cmp ah, al
-        je  end_game
-        jmp entrypoint
+  entrypoint:
+    mov ah, 0x7
+    int 0x21
+    mov ah, 'c'    ;0x63    
+    cmp ah, al
+    je start_game  
+    mov ah, 's'    ;0x73
+    cmp ah, al
+    je  end_game
+    jmp entrypoint
 
-    end_game:
-        ; Returning main video mode
-        mov al, [prev_video_mode]
-        mov ah, 0
-        int 10h
-        
-        ; Terminating program
-        mov ah, 0x4c
-        int 0x21
+  end_game:
+    ; Returning main video mode
+    mov al, [prev_video_mode]
+    mov ah, 0
+    int 10h
+    
+    ; Terminating program
+    mov ah, 0x4c
+    int 0x21
 
-    start_game:
-        ;-----------------------------------------;
-        ; Board lines
-        draw_line 270, 100, 270, 400, intense_white	
-        draw_line 370, 100, 370, 400, intense_white	
-        draw_line 170, 190, 470, 190, intense_white	
-        draw_line 170, 290, 470, 290, intense_white	
-        ;
-        ;;-----------------------------------------;
-        ;; Circles from top line
-        ;draw_circle 220, 340, 20, cyan  ;11
-        ;draw_circle 320, 340, 20, cyan  ;12
-        ;draw_circle 420, 340, 20, cyan  ;13
-        ;
-        ;; Circles from middle line
-        ;draw_circle 220, 240, 20, cyan  ;21
-        ;draw_circle 320, 240, 20, cyan  ;22 
-        ;draw_circle 420, 240, 20, cyan  ;23
-;
-        ;; Circles from bottom line
-        ;draw_circle 220, 140, 20, cyan  ;31
-        ;draw_circle 320, 140, 20, cyan  ;32
-        ;draw_circle 420, 140, 20, cyan  ;33
-;
-        ;;-----------------------------------------;
-        ;; X from top line
-        ;draw_x 200, 320, 240, 360, magenta  ;11 
-        ;draw_x 300, 320, 340, 360, magenta  ;12
-        ;draw_x 400, 320, 440, 360, magenta  ;13
-        ;
-        ;; X from middle line
-        ;draw_x 200, 220, 240, 260, magenta  ;21
-        ;draw_x 300, 220, 340, 260, magenta  ;22
-        ;draw_x 400, 220, 440, 260, magenta  ;23
-;
-;
-        ;; X from bottom line
-        ;draw_x 200, 120, 240, 160, magenta  ;31
-        ;draw_x 300, 120, 340, 160, magenta  ;32
-        ;draw_x 400, 120, 440, 160, magenta  ;33
+  start_game:
+    call draw_board
 
+  ; This approach validates one each time
+  ; We can also read all input and validate after (Discuss)
+  command_buffer:
+    ; Parsing first character (letter)
+    mov ah, 0x7
+    int 0x21
+    mov ah, 'X'
+    cmp ah, al
+    je validate_letter_play     ; if letter equal X, jump to validate repeated plays
 
-    ; This approach validates one each time
-    ; We can also read all input and validate after (Discuss)
-    command_buffer:
-        ; Parsing first character (letter)
-        mov ah, 0x7
-        int 0x21
-        mov ah, 'X'
-        cmp ah, al
-        je validate_letter_play     ; if letter equal X, jump to validate repeated plays
+    validate_letter_command:
+    mov ah, 'C'
+    cmp ah, al    
+    jne invalid_command
 
-        validate_letter_command:
-        mov ah, 'C'
-        cmp ah, al    
-        jne invalid_command
+     
+    validate_letter_play:   ; Verifying repeated letter plays
+    ; mov ah, [last_play]     ; FALTA ATUALIZAR A ULTIMA JOGADA 
+    ; cmp ah, al
+    ; je invalid_play
+    mov [current_play], ah
+    xor ah, ah
+    push ax
 
-         
-        validate_letter_play:   ; Verifying repeated letter plays
-        mov ah, [last_play]     ; FALTA ATUALIZAR A ULTIMA JOGADA 
-        cmp ah, al
-        je invalid_play
-        xor ah, ah
-        push ax
+    ; Parsing line and comlumn
+    validate_numbers:
+    mov cx, 0x2 
+    lc_parse:
+    mov ah, 0x7
+    int 0x21
+    mov ah, '4'             ; Check if number is greater or equal 4
+    cmp al, ah
+    jge invalid_command
+    xor ah, ah
+    push ax
+    loop lc_parse 
+    jmp calculate_matrix_index
 
-        ; Parsing line and comlumn
-        validate_numbers:
-        mov cx, 0x2 
-        lc_parse:
-        mov ah, 0x7
-        int 0x21
-        mov ah, '4'             ; Check if number is greater or equal 4
-        cmp al, ah
-        jge invalid_command
-        xor ah, ah
-        push ax
-        loop lc_parse 
-        jmp calculate_matrix_index
+  invalid_command:
+    mov dx, command_error
+    mov ah, 0x9
+    int 0x21
+    jmp command_buffer
 
-    invalid_command:
-        mov dx, command_error
-        mov ah, 0x9
-        int 0x21
-        jmp command_buffer
-
-    invalid_play:
-        mov dx, play_error
-        mov ah, 0x9
-        int 0x21
-        jmp command_buffer
+  invalid_play:
+    mov dx, play_error
+    mov ah, 0x9
+    int 0x21
+    jmp command_buffer
 
 
-    calculate_matrix_index:
-        ;pop bx
-        ;sub bx, 0x31
-        ;mul bx, 0x3
-        ;pop ax
-        ;sub ax, 0x31
-        ;add ax, bx
-        ;pop bx
-        
-    draw_move:
-        pop cx
-        sub cx, 0x31
-        pop dx
-        sub dx, 0x31
-        draw_circle_on_board dx, cx, 20, red
+  calculate_matrix_index:
+    ;pop bx
+    ;sub bx, 0x31
+    ;mul bx, 0x3
+    ;pop ax
+    ;sub ax, 0x31
+    ;add ax, bx
+    ;pop bx
+      
+  draw_move:
+    pop cx
+    sub cx, 0x31
+    pop dx
+    sub dx, 0x31
 
-        ; Calcular indice da matriz aqui
+    mov ah, [current_play]
+    cmp ah, 'C'
+    je should_draw_circle
+    cmp ah, 'X'
+    je should_draw_x
+    jmp invalid_play
 
-        mov ah, 0x4c
-        int 0x21
+    should_draw_circle: 
+      draw_circle_on_board dx, cx, 20, red
+      jmp command_buffer
 
+    should_draw_x: 
+      draw_x_on_board dx, cx, 20, red
+      jmp command_buffer
+
+    ; Calcular indice da matriz aqui
+    mov ah, 0x4c
+    int 0x21
+  
+
+  draw_board: 
+    ;-----------------------------------------;
+    ; board lines
+    draw_line 270, 100, 270, 400, intense_white	
+    draw_line 370, 100, 370, 400, intense_white	
+    draw_line 170, 190, 470, 190, intense_white	
+    draw_line 170, 290, 470, 290, intense_white	
+    ret
 
 ;--FIGURES-----------------------------------------------;
-
     ;   funcao plot_xy
     ; push x; push y; call plot_xy;  (x<639, y<479)
     ; cor definida na variavel cor
