@@ -9,6 +9,10 @@ If the bit on the position is set to 1, that means that position has been played
 by one of the players. The same idea applies for each player move.
 
 #### Representation:
+We represent the player moves as well as the board positions as follows: 
+
+![](https://github.com/KPMGE/tic-tac-toe-assembly_x86/blob/master/table.png)
+
 board/moves: 0000000x.xxxxxxxx
 
 So, we can figure out if a player has won the match or if the board if full by
