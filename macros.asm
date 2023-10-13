@@ -2,6 +2,13 @@
 %ifndef macros_
 %define macros_
 
+; save_player_move(player_variable)
+%macro save_move 1
+  mov bx, [%1]
+  or ax, bx 
+  mov [%1], ax
+%endmacro
+
 ; draw_line(x1, y1, x2, y2, color)
 %macro draw_line 5
 	mov		byte[cor], %5	
