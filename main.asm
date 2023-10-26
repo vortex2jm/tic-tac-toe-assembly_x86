@@ -140,16 +140,6 @@ segment code
     int 0x21
     jmp command_buffer
 
-
-  calculate_matrix_index:
-    ;pop bx
-    ;sub bx, 0x31
-    ;mul bx, 0x3
-    ;pop ax
-    ;sub ax, 0x31
-    ;add ax, bx
-    ;pop bx
-
   draw_move:
     ; converting moves to a range of 0-3
     ; x value is in cx
