@@ -16,14 +16,7 @@ check_end_of_match:
   jmp check_end_of_match_ret
 
   table_full:
-    ; print message
-    mov dx, full_table_message
-    mov ah, 0x9
-    int 0x21
-    ; exit
-    mov ah, 0x4c
-    int 0x21
-    jmp check_end_of_match_ret
+    finish_match full_table_message
 
   check_end_of_match_ret:
     pop ax
@@ -37,28 +30,11 @@ handle_player_o_won:
   jmp handle_player_o_won_ret
 
   player_o_won_match:
-    ; print message
-    mov dx, player_o_won_msg
-    mov ah, 0x9
-    int 0x21
-    
-    ;Press any key
-    mov ah, 0x7
-    int 0x21
+    finish_match player_x_won_msg
 
-    ; Returning main video mode
-    mov al, [prev_video_mode]
-    mov ah, 0
-    int 10h
-    
-    ; exit
-    mov ah, 0x4c
-    int 0x21
-
-  handle_player_o_won_ret:
+  handle_player_o_won_ret
     pop ax
     ret
-
 
 handle_player_x_won: 
   push ax
@@ -68,23 +44,7 @@ handle_player_x_won:
   jmp handle_player_x_won_ret
 
   player_x_won_match:
-    ; print message
-    mov dx, player_x_won_msg
-    mov ah, 0x9
-    int 0x21
-    
-    ;Press any key
-    mov ah, 0x7
-    int 0x21
-
-    ; Returning main video mode
-    mov al, [prev_video_mode]
-    mov ah, 0
-    int 10h
-
-    ; exit
-    mov ah, 0x4c
-    int 0x21
+    finish_match player_x_won_msg
 
   handle_player_x_won_ret:
     pop ax
