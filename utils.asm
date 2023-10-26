@@ -8,7 +8,7 @@ check_end_of_match:
 
   ; check if table is full
   mov ax, [table_moves]
-  compare_condition ax, TABLE_FULL, table_full
+  compare_condition ax, TABLE_FULL, table_full, word 0x0, word 0x0
 
   call handle_player_x_won
   call handle_player_o_won
@@ -30,6 +30,7 @@ handle_player_o_won:
   jmp handle_player_o_won_ret
 
   player_o_won_match:
+    call draw_winner_line
     finish_match player_x_won_msg
 
   handle_player_o_won_ret
@@ -44,10 +45,45 @@ handle_player_x_won:
   jmp handle_player_x_won_ret
 
   player_x_won_match:
+    call draw_winner_line
     finish_match player_x_won_msg
 
   handle_player_x_won_ret:
     pop ax
+    ret
+
+
+draw_winner_line:
+  pop cx  ; pop number
+  pop dx  ; pop direction
+
+  xor ax, ax
+  mov ax, 'd'
+  cmp ax, dx 
+  je d_case
+  mov ax, 'h'
+  cmp ax, dx
+  je h_case
+  mov ax, 'v'
+  cmp ax, dx
+  je v_case
+
+  d_case:
+    mov ax, cx 
+    cmp ax, 0x0
+    jne d_case_1
+    d_case_0:
+      draw_line X_EXTREME_0, Y_EXTREME_1, X_EXTREME_1, Y_EXTREME_0, intense_white
+    jmp end
+    d_case_1:
+      draw_line X_EXTREME_1, Y_EXTREME_1, X_EXTREME_0, Y_EXTREME_0, intense_white
+    jmp end
+  
+  h_case:
+
+  v_case:
+
+  end:
     ret
 
 draw_board: 

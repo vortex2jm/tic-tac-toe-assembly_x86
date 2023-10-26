@@ -24,24 +24,6 @@ segment data
   deltax		  dw	0x0
   deltay		  dw	0x0
 
-  ; Saving colors
-  black		      equ		0x0
-  blue		      equ		0x1
-  green		      equ		0x2
-  cyan		      equ		0x3
-  red	          equ		0x4
-  magenta		  equ		0x5
-  brown		      equ		0x6
-  white		      equ		0x7
-  grey		      equ		0x8
-  light_blue	  equ		0x9
-  light_green	  equ		0xa
-  light_cyan	  equ		0xb
-  pink		      equ		0xc
-  light_magenta	  equ		0xd
-  yellow		  equ		0xe
-  intense_white	  equ		0xf
-
 
 segment stack stack						
   resb 512	; 512 bytes for stack
