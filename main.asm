@@ -181,7 +181,7 @@ segment code
       save_move player_o_moves
       save_move table_moves
 
-      draw_circle_on_board cx, dx, 20, red
+      draw_circle_on_board dx, cx, 20, red
       jmp command_buffer
 
     should_draw_x: 
@@ -190,7 +190,7 @@ segment code
       save_move player_x_moves
       save_move table_moves
 
-      draw_x_on_board cx, dx, 20, red
+      draw_x_on_board dx, cx, 20, red
       jmp command_buffer
 
   %include "utils.asm"
