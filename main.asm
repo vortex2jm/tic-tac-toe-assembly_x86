@@ -67,6 +67,10 @@ segment code
   mov     	ah,0
   int     	10h	
 
+  ; Verifying first input
+  ; if char = c -> create new game
+  ; if char = s -> end game
+  ; else wait for another input
   entrypoint:
     mov ah, 0x7
     int 0x21
@@ -77,7 +81,8 @@ segment code
     cmp ah, al
     je  end_game
     jmp entrypoint
-
+  
+  ; Closing game
   end_game:
     ; Returning main video mode
     mov al, [prev_video_mode]
@@ -87,12 +92,13 @@ segment code
     ; Terminating program
     mov ah, 0x4c
     int 0x21
-
+  
+  ; playing
   start_game:
     call draw_board
 
+  ; Input validation
   ; This approach validates one each time
-  ; We can also read all input and validate after (Discuss)
   command_buffer:
     ; check end of match prematurelly
     call check_end_of_match
@@ -102,42 +108,51 @@ segment code
     int 0x21
     mov ah, 'X'
     cmp ah, al
-    je validate_letter_play     ; if letter equal X, jump to validate repeated plays
+    je validate_alternate_play     ; if letter equal X, jump to validate repeated plays
 
+    ; If commando is not X
     validate_letter_command:
     mov ah, 'C'
     cmp ah, al    
-    jne invalid_command
+    jne invalid_command     ; Command needs to be X or C, else is an invalid command
 
-     
-    validate_letter_play:   ; Verifying repeated letter plays
-    ; mov ah, [last_play]     ; FALTA ATUALIZAR A ULTIMA JOGADA 
-    ; cmp ah, al
-    ; je invalid_play
-    mov [current_play], ah
+    ; Verifying repeated X or C plays
+    validate_alternate_play:
+    mov [current_play], al   
+    mov ah, [last_play]      
+    cmp ah, al
+    je invalid_play
+    ;mov [last_play], al
     xor ah, ah
-    push ax
+    push ax     ; Pushing move into stack to be used in another function
 
     ; Parsing line and comlumn
     validate_numbers:
-    mov cx, 0x2 
+    mov cx, 0x2     ; Loop counter
     lc_parse:
     mov ah, 0x7
     int 0x21
-    mov ah, '4'             ; Check if number is greater or equal 4
+    mov ah, '4'             ; Checks if number is greater or equal 4
     cmp al, ah
     jge invalid_command
+    mov ah, '0'             ; Checks if the number is less or equal 0
+    cmp al, ah
+    jle invalid_command
+    mov dl, [current_play]  ; If valid command, process this play (Avoid bug)
+    mov [last_play], dl
     xor ah, ah
     push ax
-    loop lc_parse 
-    jmp draw_move
-
+    loop lc_parse
+    jmp draw_move   ; Jumping over validation exceptions
+  
+  ; If command is not X or C, print error message and wait for another input
   invalid_command:
     mov dx, command_error
     mov ah, 0x9
     int 0x21
     jmp command_buffer
-
+  
+  ; If current play has already been played in last play
   invalid_play:
     mov dx, play_error
     mov ah, 0x9
@@ -146,12 +161,12 @@ segment code
 
   draw_move:
     ; converting moves to a range of 0-3
-    ; x value is in cx
-    ; y value is in dx
-    pop dx
-    sub dx, 0x31
-    pop cx
-    sub cx, 0x31
+    ; l value is in cx
+    ; c value is in dx
+    pop dx          ; Getting column valeu from stack
+    sub dx, 0x31    ; Parsing ASCII to int
+    pop cx          ; Getting line value from stack
+    sub cx, 0x31    ; Parsing ASCII to int
 
     call convert_move_to_bit_mask
     ; save player player_bitmask to a variable

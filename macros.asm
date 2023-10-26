@@ -6,13 +6,20 @@
 
 ; finish match(msg_to_display)
 %macro finish_match 1
-  ; clear screen
-  mov ax, 0x0003
-  int 0x10
   ; print message
   mov dx, %1
   mov ah, 0x9
   int 0x21
+
+  ;Press any key
+  mov ah, 0x7
+  int 0x21
+
+  ; Returning main video mode
+  mov al, [prev_video_mode]
+  mov ah, 0
+  int 10h
+
   ; exit
   mov ah, 0x4c
   int 0x21
