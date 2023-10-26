@@ -1,10 +1,19 @@
 %include "macros.asm"
+%include "consts.asm"
 
 segment data
   cor		          db		intense_white
   prev_video_mode db		0x0
   last_play       db    0x0
   current_play    db    0x0
+
+  player_x_moves  dw    0x0
+  player_o_moves  dw    0x0
+  table_moves     dw    0x0
+
+  player_x_won_msg  db 'PLAYER X WON', 0xd, 0xa, '$'
+  player_o_won_msg  db 'PLAYER O WON', 0xd, 0xa, '$'
+  full_table_message  db 'THE TABLE IS FULL', 0xd, 0xa, '$'
 
   command_error   db 'Invalid command', 0xd, 0xa, '$'
   play_error      db 'Invalid play, this symble has already been played', 0xd, 0xa, '$' 
@@ -140,12 +149,23 @@ segment code
     ;sub ax, 0x31
     ;add ax, bx
     ;pop bx
-      
+
   draw_move:
-    pop cx
-    sub cx, 0x31
+    ; converting moves to a range of 0-3
+    ; x value is in cx
+    ; y value is in dx
     pop dx
     sub dx, 0x31
+    pop cx
+    sub cx, 0x31
+
+    call convert_move_to_bit_mask
+    push ax
+
+    call check_end_of_match
+
+    ; clean up ax
+    xor ax, ax
 
     mov ah, [current_play]
     cmp ah, 'C'
@@ -155,26 +175,26 @@ segment code
     jmp invalid_play
 
     should_draw_circle: 
-      draw_circle_on_board dx, cx, 20, red
+      pop ax
+
+      ; save moves
+      save_move player_o_moves
+      save_move table_moves
+
+      draw_circle_on_board cx, dx, 20, red
       jmp command_buffer
 
     should_draw_x: 
-      draw_x_on_board dx, cx, 20, red
+      pop ax
+      ; save moves
+      save_move player_x_moves
+      save_move table_moves
+
+      draw_x_on_board cx, dx, 20, red
       jmp command_buffer
 
-    ; Calcular indice da matriz aqui
-    mov ah, 0x4c
-    int 0x21
-  
+  %include "utils.asm"
 
-  draw_board: 
-    ;-----------------------------------------;
-    ; board lines
-    draw_line 270, 100, 270, 400, intense_white	
-    draw_line 370, 100, 370, 400, intense_white	
-    draw_line 170, 190, 470, 190, intense_white	
-    draw_line 170, 290, 470, 290, intense_white	
-    ret
 
 ;--FIGURES-----------------------------------------------;
     ;   funcao plot_xy
