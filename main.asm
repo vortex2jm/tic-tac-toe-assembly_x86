@@ -93,6 +93,8 @@ segment code
   ; This approach validates one each time
   ; We can also read all input and validate after (Discuss)
   command_buffer:
+    call check_end_of_match
+
     ; Parsing first character (letter)
     mov ah, 0x7
     int 0x21
