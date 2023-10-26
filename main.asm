@@ -6,6 +6,7 @@ segment data
   prev_video_mode db		0x0
   last_play       db    0x0
   current_play    db    0x0
+  player_bitmask  dw    0x0
 
   player_x_moves  dw    0x0
   player_o_moves  dw    0x0
@@ -93,6 +94,7 @@ segment code
   ; This approach validates one each time
   ; We can also read all input and validate after (Discuss)
   command_buffer:
+    ; check end of match prematurelly
     call check_end_of_match
 
     ; Parsing first character (letter)
@@ -128,7 +130,7 @@ segment code
     xor ah, ah
     push ax
     loop lc_parse 
-    jmp calculate_matrix_index
+    jmp draw_move
 
   invalid_command:
     mov dx, command_error
@@ -142,16 +144,6 @@ segment code
     int 0x21
     jmp command_buffer
 
-
-  calculate_matrix_index:
-    ;pop bx
-    ;sub bx, 0x31
-    ;mul bx, 0x3
-    ;pop ax
-    ;sub ax, 0x31
-    ;add ax, bx
-    ;pop bx
-
   draw_move:
     ; converting moves to a range of 0-3
     ; x value is in cx
@@ -162,13 +154,17 @@ segment code
     sub cx, 0x31
 
     call convert_move_to_bit_mask
-    push ax
+    ; save player player_bitmask to a variable
+    mov [player_bitmask], ax
 
     call check_end_of_match
 
+    ; check if position has already been taken
+    check_position_taken table_moves, player_bitmask, invalid_play, move_not_taken
+    move_not_taken:
+
     ; clean up ax
     xor ax, ax
-
     mov ah, [current_play]
     cmp ah, 'C'
     je should_draw_circle
@@ -177,7 +173,7 @@ segment code
     jmp invalid_play
 
     should_draw_circle: 
-      pop ax
+      mov ax, [player_bitmask]
 
       ; save moves
       save_move player_o_moves
@@ -187,7 +183,8 @@ segment code
       jmp command_buffer
 
     should_draw_x: 
-      pop ax
+      mov ax, [player_bitmask]
+
       ; save moves
       save_move player_x_moves
       save_move table_moves

@@ -4,6 +4,21 @@
 
 %include "consts.asm"
 
+; finish match(msg_to_display)
+%macro finish_match 1
+  ; clear screen
+  mov ax, 0x0003
+  int 0x10
+  ; print message
+  mov dx, %1
+  mov ah, 0x9
+  int 0x21
+  ; exit
+  mov ah, 0x4c
+  int 0x21
+%endmacro
+
+
 ; verify_player_won(register_to_compare, label_to_jump)
 %macro check_player_won 2
   compare_condition %1, PLAYER_WON_012, %2
@@ -23,6 +38,26 @@
   cmp %1, %2
   pop %1
   je %3
+%endmacro
+
+; check_position_taken(table_moves, positon_bitmask, move_taken_label, move_not_taken_label)
+%macro check_position_taken 4
+  ; save context
+  push ax
+  push bx
+
+  mov ax, [%2]
+  mov bx, [%1]
+  and ax, bx
+  cmp ax, 0
+
+  ; restore context
+  pop ax
+  pop bx
+  ; if the and with the bitmask results in 0, the positions has not been taken yet
+  je %4
+  ; otherwise, it was
+  jmp %3
 %endmacro
 
 ; save_player_move(player_variable)
