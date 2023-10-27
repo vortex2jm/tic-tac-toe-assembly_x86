@@ -120,8 +120,6 @@ segment code
     mov ah, '0'             ; Checks if the number is less or equal 0
     cmp al, ah
     jle invalid_command
-    mov dl, [current_play]  ; If valid command, process this play (Avoid bug)
-    mov [last_play], dl
     xor ah, ah
     push ax
     loop lc_parse
@@ -159,6 +157,8 @@ segment code
     ; check if position has already been taken
     check_position_taken table_moves, player_bitmask, invalid_play, move_not_taken
     move_not_taken:
+    mov al, [current_play]  ; If valid command, process this play (Avoid bug)
+    mov [last_play], al
 
     ; clean up ax
     xor ax, ax
