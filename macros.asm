@@ -28,27 +28,25 @@
 
 ; verify_player_won(register_to_compare, label_to_jump)
 %macro check_player_won 2
-  compare_condition %1, PLAYER_WON_012, %2, word'h', word 0x0  
-  compare_condition %1, PLAYER_WON_345, %2, word'h', word 0x1
-  compare_condition %1, PLAYER_WON_678, %2, word'h', word 0x2
-  compare_condition %1, PLAYER_WON_048, %2, word'd', word 0x0
-  compare_condition %1, PLAYER_WON_642, %2, word'd', word 0x1
-  compare_condition %1, PLAYER_WON_630, %2, word'v', word 0x0
-  compare_condition %1, PLAYER_WON_741, %2, word'v', word 0x1
-  compare_condition %1, PLAYER_WON_852, %2, word'v', word 0x2
+  compare_condition %1, PLAYER_WON_012, %2, word'h0'  
+  compare_condition %1, PLAYER_WON_345, %2, word'h1'
+  compare_condition %1, PLAYER_WON_678, %2, word'h2'
+  compare_condition %1, PLAYER_WON_048, %2, word'd0'
+  compare_condition %1, PLAYER_WON_642, %2, word'd1'
+  compare_condition %1, PLAYER_WON_630, %2, word'v0'
+  compare_condition %1, PLAYER_WON_741, %2, word'v1'
+  compare_condition %1, PLAYER_WON_852, %2, word'v2'
 %endmacro
 
 ; compare_condition(register_to_compare, variable_to_compare, label_to_jump)
-%macro compare_condition 5
+%macro compare_condition 4
   push %1
   and %1, %2
   cmp %1, %2
   pop %1
   push %4   ;Pushing line drawing information
-  push %5   ;Pushing line drawing information
   je %3
-  pop dx
-  pop dx
+  pop bx
 %endmacro
 
 ; check_position_taken(table_moves, positon_bitmask, move_taken_label, move_not_taken_label)
