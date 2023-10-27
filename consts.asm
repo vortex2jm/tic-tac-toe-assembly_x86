@@ -18,7 +18,7 @@
 %define Y_EXTREME_1 400
 
 ; Add 100
-%define VERT_X_BASE_0 220
+%define VERT_X_BASE 220
 ; Sub 100
 %define HORIZ_Y_BASE 350
 

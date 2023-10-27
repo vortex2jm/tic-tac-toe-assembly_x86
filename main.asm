@@ -9,8 +9,16 @@ segment data
   player_bitmask  dw    0x0
 
   player_x_moves  dw    0x0
+  finale3 db '$'
+  ; HEre
   player_o_moves  dw    0x0
+  finale2 db '$'
+  
   table_moves     dw    0x0
+
+  win_line_case dw 0x0
+  ; Here
+  finale db '$'
 
   player_x_won_msg  db 'PLAYER X WON', 0xd, 0xa, '$'
   player_o_won_msg  db 'PLAYER O WON', 0xd, 0xa, '$'

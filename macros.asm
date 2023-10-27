@@ -45,6 +45,7 @@
   cmp %1, %2
   pop %1
   push %4   ;Pushing line drawing information
+  ;mov [win_line_case], %4
   je %3
   pop bx
 %endmacro

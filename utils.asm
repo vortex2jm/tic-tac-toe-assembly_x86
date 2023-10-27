@@ -30,7 +30,9 @@ handle_player_o_won:
   jmp handle_player_o_won_ret
 
   player_o_won_match:
-    call draw_winner_line
+    jmp draw_winner_line
+
+    finish_o:
     finish_match player_x_won_msg
 
   handle_player_o_won_ret
@@ -45,7 +47,9 @@ handle_player_x_won:
   jmp handle_player_x_won_ret
 
   player_x_won_match:
-    call draw_winner_line
+    jmp draw_winner_line
+
+    finish_x:
     finish_match player_x_won_msg
 
   handle_player_x_won_ret:
@@ -55,6 +59,14 @@ handle_player_x_won:
 
 draw_winner_line:
   pop dx  ; pop number
+  ;mov [win_line_case], dx
+  ;mov dx, win_line_case
+
+  ;mov ah, 0x9
+  ;int 0x21
+
+  ;mov ah, 0x4c
+  ;int 0x21
 
   xor ax, ax
   mov al, 'd'
@@ -63,13 +75,14 @@ draw_winner_line:
   mov al, 'h'
   cmp al, dh
   je h_case
-  mov al, 'v'
-  cmp al, dh
-  je v_case
+  jmp v_case
+  ;mov al, 'v'
+  ;cmp al, dh
+  ;je v_case
 
   d_case: 
     cmp dl, 0x0
-    jne d_case_1
+    je d_case_1
     d_case_0:
       draw_line X_EXTREME_0, Y_EXTREME_1, X_EXTREME_1, Y_EXTREME_0, intense_white
       jmp end
@@ -78,19 +91,56 @@ draw_winner_line:
       jmp end
   
   h_case:
+    cmp dl, 0x0
+    je h_case_0
+    cmp dl, 0x1
+    je h_case_1
+    h_case_0:
+      draw_line X_EXTREME_0, HORIZ_Y_BASE, X_EXTREME_1, HORIZ_Y_BASE, intense_white
+      jmp end
+    h_case_1:
+      mov ax, HORIZ_Y_BASE
+      sub ax, 100
+      draw_line X_EXTREME_0, ax, X_EXTREME_1, ax, intense_white
+      jmp end
+    h_case_2:
+      mov ax, HORIZ_Y_BASE
+      sub ax, 200
+      draw_line X_EXTREME_0, ax, X_EXTREME_1, ax, intense_white
+      jmp end
 
   v_case:
-
+    cmp dl, 0x0
+    je v_case_0
+    cmp dl, 0x1
+    je v_case_1
+    v_case_0:
+      draw_line Y_EXTREME_0, VERT_X_BASE, Y_EXTREME_1, VERT_X_BASE, intense_white 
+      jmp end
+    v_case_1:
+      mov ax, VERT_X_BASE
+      add ax, 100
+      draw_line Y_EXTREME_0, ax, Y_EXTREME_1, ax, intense_white 
+      jmp end
+    v_case_2:
+      mov ax, VERT_X_BASE
+      add ax, 100
+      draw_line Y_EXTREME_0, ax, Y_EXTREME_1, ax, intense_white 
   end:
-    ret
+    mov ax, [current_play]
+    cmp ax, 'X'
+    je jump_finish_x
+    jmp finish_o
+    jump_finish_x:
+    jmp finish_x
 
 draw_board: 
   ;-----------------------------------------;
   ; Board lines
   draw_line 270, 100, 270, 400, intense_white	
   draw_line 370, 100, 370, 400, intense_white	
-  draw_line 170, 190, 470, 190, intense_white	
-  draw_line 170, 290, 470, 290, intense_white	
+  draw_line 170, 200, 470, 200, intense_white	
+  draw_line 170, 300, 470, 300, intense_white	
   ret
 
 ; INPUT: move in the form (x, y). 
