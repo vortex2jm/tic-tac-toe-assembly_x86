@@ -15,6 +15,7 @@ segment data
   player_x_won_msg  db 'PLAYER X WON', 0xd, 0xa, '$'
   player_o_won_msg  db 'PLAYER O WON', 0xd, 0xa, '$'
   full_table_message  db 'THE TABLE IS FULL', 0xd, 0xa, '$'
+  winner_line db  0x0, 0x0
 
   command_error   db 'Invalid command', 0xd, 0xa, '$'
   play_error      db 'Invalid play, this symble has already been played', 0xd, 0xa, '$' 

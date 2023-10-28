@@ -17,10 +17,15 @@
 %define Y_EXTREME_0 100
 %define Y_EXTREME_1 400
 
-; Add 100
-%define VERT_X_BASE_0 220
-; Sub 100
+; NOTE: Add 100 to go to the next column
+%define VERT_X_BASE 220
+%define VERT_X_SECOND_COLUMN_BASE 320
+%define VERT_X_THIRD_COLUMN_BASE 420
+
+; NOTE: Sub 100 to go to the next row
 %define HORIZ_Y_BASE 350
+%define HORIZ_Y_SECOND_LINE_BASE 250
+%define HORIZ_Y_THIRD_LINE_BASE 150
 
 ; Saving colors
 %define  black		   		0x0

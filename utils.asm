@@ -8,7 +8,9 @@ check_end_of_match:
 
   ; check if table is full
   mov ax, [table_moves]
-  compare_condition ax, TABLE_FULL, table_full, word 0x0
+  and ax, TABLE_FULL
+  cmp ax, TABLE_FULL
+  je table_full
 
   call handle_player_x_won
   call handle_player_o_won
@@ -30,8 +32,10 @@ handle_player_o_won:
   jmp handle_player_o_won_ret
 
   player_o_won_match:
-    call draw_winner_line
-    finish_match player_x_won_msg
+    jmp draw_winner_line
+
+    finish_o:
+      finish_match player_o_won_msg
 
   handle_player_o_won_ret
     pop ax
@@ -45,31 +49,31 @@ handle_player_x_won:
   jmp handle_player_x_won_ret
 
   player_x_won_match:
-    call draw_winner_line
+    jmp draw_winner_line
+
+    finish_x:
     finish_match player_x_won_msg
 
   handle_player_x_won_ret:
     pop ax
     ret
 
-
+; draws a line in the sequence that won the game
 draw_winner_line:
-  pop dx  ; pop number
+  ; get drawing information from variable
+  mov dh, [winner_line]
+  mov dl, [winner_line + 1]
 
-  xor ax, ax
-  mov al, 'd'
-  cmp al, dh 
+  ; decide where to draw the line
+  cmp dh, 'd'
   je d_case
-  mov al, 'h'
-  cmp al, dh
+  cmp dh, 'h'
   je h_case
-  mov al, 'v'
-  cmp al, dh
-  je v_case
+  jmp v_case
 
   d_case: 
-    cmp dl, 0x0
-    jne d_case_1
+    cmp dl, '1'
+    je d_case_1
     d_case_0:
       draw_line X_EXTREME_0, Y_EXTREME_1, X_EXTREME_1, Y_EXTREME_0, intense_white
       jmp end
@@ -78,19 +82,49 @@ draw_winner_line:
       jmp end
   
   h_case:
+    cmp dl, '1'
+    je h_case_1
+    cmp dl, '2' 
+    je h_case_2
+    h_case_0:
+      draw_line X_EXTREME_0, HORIZ_Y_BASE, X_EXTREME_1, HORIZ_Y_BASE, intense_white
+      jmp end
+    h_case_1:
+      draw_line X_EXTREME_0, HORIZ_Y_SECOND_LINE_BASE, X_EXTREME_1, HORIZ_Y_SECOND_LINE_BASE, intense_white
+      jmp end
+    h_case_2:
+      draw_line X_EXTREME_0, HORIZ_Y_THIRD_LINE_BASE, X_EXTREME_1, HORIZ_Y_THIRD_LINE_BASE, intense_white
+      jmp end
 
   v_case:
+    cmp dl, '1'
+    je v_case_1
+    cmp dl, '2' 
+    je v_case_2
+    v_case_0:
+      draw_line VERT_X_BASE, Y_EXTREME_0, VERT_X_BASE, Y_EXTREME_1, intense_white 
+      jmp end
+    v_case_1:
+      draw_line VERT_X_SECOND_COLUMN_BASE, Y_EXTREME_0, VERT_X_SECOND_COLUMN_BASE, Y_EXTREME_1, intense_white 
+      jmp end
+    v_case_2:
+      draw_line VERT_X_THIRD_COLUMN_BASE, Y_EXTREME_0, VERT_X_THIRD_COLUMN_BASE, Y_EXTREME_1, intense_white 
 
   end:
-    ret
+    mov ax, [current_play]
+    cmp ax, 'X'
+    je jump_finish_x
+    jmp finish_o
+    jump_finish_x:
+    jmp finish_x
 
 draw_board: 
   ;-----------------------------------------;
   ; Board lines
   draw_line 270, 100, 270, 400, intense_white	
   draw_line 370, 100, 370, 400, intense_white	
-  draw_line 170, 190, 470, 190, intense_white	
-  draw_line 170, 290, 470, 290, intense_white	
+  draw_line 170, 200, 470, 200, intense_white	
+  draw_line 170, 300, 470, 300, intense_white	
   ret
 
 ; INPUT: move in the form (x, y). 
