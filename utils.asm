@@ -100,13 +100,13 @@ draw_winner_line:
     cmp dl, '2' 
     je h_case_2
     h_case_0:
-      draw_line X_EXTREME_0, HORIZ_Y_BASE, X_EXTREME_1, HORIZ_Y_BASE, blue
+      draw_line X_EXTREME_0, HORIZ_Y_BASE, X_EXTREME_1, HORIZ_Y_BASE, intense_white
       jmp end
     h_case_1:
-      draw_line X_EXTREME_0, HORIZ_Y_SECOND_LINE_BASE, X_EXTREME_1, HORIZ_Y_SECOND_LINE_BASE, blue
+      draw_line X_EXTREME_0, HORIZ_Y_SECOND_LINE_BASE, X_EXTREME_1, HORIZ_Y_SECOND_LINE_BASE, intense_white
       jmp end
     h_case_2:
-      draw_line X_EXTREME_0, HORIZ_Y_THIRD_LINE_BASE, X_EXTREME_1, HORIZ_Y_THIRD_LINE_BASE, blue
+      draw_line X_EXTREME_0, HORIZ_Y_THIRD_LINE_BASE, X_EXTREME_1, HORIZ_Y_THIRD_LINE_BASE, intense_white
       jmp end
 
   v_case:
@@ -115,13 +115,13 @@ draw_winner_line:
     cmp dl, '2' 
     je v_case_2
     v_case_0:
-      draw_line VERT_X_BASE, Y_EXTREME_0, VERT_X_BASE, Y_EXTREME_1, blue 
+      draw_line VERT_X_BASE, Y_EXTREME_0, VERT_X_BASE, Y_EXTREME_1, intense_white 
       jmp end
     v_case_1:
-      draw_line VERT_X_SECOND_COLUMN_BASE, Y_EXTREME_0, VERT_X_SECOND_COLUMN_BASE, Y_EXTREME_1, blue 
+      draw_line VERT_X_SECOND_COLUMN_BASE, Y_EXTREME_0, VERT_X_SECOND_COLUMN_BASE, Y_EXTREME_1, intense_white 
       jmp end
     v_case_2:
-      draw_line VERT_X_THIRD_COLUMN_BASE, Y_EXTREME_0, VERT_X_THIRD_COLUMN_BASE, Y_EXTREME_1, blue 
+      draw_line VERT_X_THIRD_COLUMN_BASE, Y_EXTREME_0, VERT_X_THIRD_COLUMN_BASE, Y_EXTREME_1, intense_white 
 
   end:
     mov ax, [current_play]
