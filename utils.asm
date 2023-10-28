@@ -8,7 +8,9 @@ check_end_of_match:
 
   ; check if table is full
   mov ax, [table_moves]
-  compare_condition ax, TABLE_FULL, table_full, word 0x0
+  and ax, TABLE_FULL
+  cmp ax, TABLE_FULL
+  je table_full
 
   call handle_player_x_won
   call handle_player_o_won
@@ -33,7 +35,7 @@ handle_player_o_won:
     jmp draw_winner_line
 
     finish_o:
-    finish_match player_x_won_msg
+      finish_match player_o_won_msg
 
   handle_player_o_won_ret
     pop ax
@@ -56,33 +58,18 @@ handle_player_x_won:
     pop ax
     ret
 
-
+; draws a line in the sequence that won the game
 draw_winner_line:
-  pop dx  ; pop number
-  ;mov [win_line_case], dx
-  ;mov dx, win_line_case
+  ; get drawing information from variable
+  mov dh, [winner_line]
+  mov dl, [winner_line + 1]
 
-  ;mov ah, 0x9
-  ;int 0x21
-
-  ;mov ah, 0x4c
-  ;int 0x21
-
-  mov dh, 'd'
-  mov dl, '0'
-  jmp d_case
-
-  xor ax, ax
-  mov al, 'd'
-  cmp al, dh 
+  ; decide where to draw the line
+  cmp dh, 'd'
   je d_case
-  mov al, 'h'
-  cmp al, dh
+  cmp dh, 'h'
   je h_case
   jmp v_case
-  ;mov al, 'v'
-  ;cmp al, dh
-  ;je v_case
 
   d_case: 
     cmp dl, '1'

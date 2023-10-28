@@ -28,26 +28,34 @@
 
 ; verify_player_won(register_to_compare, label_to_jump)
 %macro check_player_won 2
-  compare_condition %1, PLAYER_WON_012, %2, word'h0'  
-  compare_condition %1, PLAYER_WON_345, %2, word'h1'
-  compare_condition %1, PLAYER_WON_678, %2, word'h2'
-  compare_condition %1, PLAYER_WON_048, %2, word'd0'
-  compare_condition %1, PLAYER_WON_642, %2, word'd1'
-  compare_condition %1, PLAYER_WON_630, %2, word'v0'
-  compare_condition %1, PLAYER_WON_741, %2, word'v1'
-  compare_condition %1, PLAYER_WON_852, %2, word'v2'
+  compare_condition %1, PLAYER_WON_012, %2, 'v', '0'  
+  compare_condition %1, PLAYER_WON_345, %2, 'v', '1'
+  compare_condition %1, PLAYER_WON_678, %2, 'v', '2'
+  compare_condition %1, PLAYER_WON_048, %2, 'd', '0'
+  compare_condition %1, PLAYER_WON_642, %2, 'd', '1'
+  compare_condition %1, PLAYER_WON_630, %2, 'h', '0'
+  compare_condition %1, PLAYER_WON_741, %2, 'h', '1'
+  compare_condition %1, PLAYER_WON_852, %2, 'h', '2'
 %endmacro
 
-; compare_condition(register_to_compare, variable_to_compare, label_to_jump)
-%macro compare_condition 4
+; compare_condition(register_to_compare, variable_to_compare, label_to_jump, line_direction, line_number)
+%macro compare_condition 5
+  ; save context
   push %1
+  ; compare register to value
   and %1, %2
   cmp %1, %2
+  ; recover context
   pop %1
-  push %4   ;Pushing line drawing information
-  ;mov [win_line_case], %4
-  je %3
-  pop bx
+
+  jne not_equal_%%$$
+    ; if they're equal, save line info and go to the label
+    mov [winner_line], byte %4
+    mov [winner_line + 1], byte %5
+    jmp %3
+
+  ; in case they're not equal
+  not_equal_%%$$:
 %endmacro
 
 ; check_position_taken(table_moves, positon_bitmask, move_taken_label, move_not_taken_label)

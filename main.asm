@@ -9,20 +9,13 @@ segment data
   player_bitmask  dw    0x0
 
   player_x_moves  dw    0x0
-  finale3 db '$'
-  ; HEre
   player_o_moves  dw    0x0
-  finale2 db '$'
-  
   table_moves     dw    0x0
-
-  winner_line db 0x0, 0x0
-  ; Here
-  finale db '$'
 
   player_x_won_msg  db 'PLAYER X WON', 0xd, 0xa, '$'
   player_o_won_msg  db 'PLAYER O WON', 0xd, 0xa, '$'
   full_table_message  db 'THE TABLE IS FULL', 0xd, 0xa, '$'
+  winner_line db  0x0, 0x0
 
   command_error   db 'Invalid command', 0xd, 0xa, '$'
   play_error      db 'Invalid play, this symble has already been played', 0xd, 0xa, '$' 
