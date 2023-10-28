@@ -68,6 +68,10 @@ draw_winner_line:
   ;mov ah, 0x4c
   ;int 0x21
 
+  mov dh, 'h'
+  mov dl, '2'
+  jmp h_case
+
   xor ax, ax
   mov al, 'd'
   cmp al, dh 
@@ -91,22 +95,18 @@ draw_winner_line:
       jmp end
   
   h_case:
-    cmp dl, 0x0
-    je h_case_0
-    cmp dl, 0x1
+    cmp dl, '1'
     je h_case_1
+    cmp dl, '2' 
+    je h_case_2
     h_case_0:
-      draw_line X_EXTREME_0, HORIZ_Y_BASE, X_EXTREME_1, HORIZ_Y_BASE, intense_white
+      draw_line X_EXTREME_0, HORIZ_Y_BASE, X_EXTREME_1, HORIZ_Y_BASE, blue
       jmp end
     h_case_1:
-      mov ax, HORIZ_Y_BASE
-      sub ax, 100
-      draw_line X_EXTREME_0, ax, X_EXTREME_1, ax, intense_white
+      draw_line X_EXTREME_0, HORIZ_Y_SECOND_LINE_BASE, X_EXTREME_1, HORIZ_Y_SECOND_LINE_BASE, blue
       jmp end
     h_case_2:
-      mov ax, HORIZ_Y_BASE
-      sub ax, 200
-      draw_line X_EXTREME_0, ax, X_EXTREME_1, ax, intense_white
+      draw_line X_EXTREME_0, HORIZ_Y_THIRD_LINE_BASE, X_EXTREME_1, HORIZ_Y_THIRD_LINE_BASE, blue
       jmp end
 
   v_case:
