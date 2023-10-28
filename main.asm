@@ -16,7 +16,7 @@ segment data
   
   table_moves     dw    0x0
 
-  win_line_case dw 0x0
+  winner_line db 0x0, 0x0
   ; Here
   finale db '$'
 
