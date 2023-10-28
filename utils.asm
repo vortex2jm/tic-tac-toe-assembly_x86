@@ -68,9 +68,9 @@ draw_winner_line:
   ;mov ah, 0x4c
   ;int 0x21
 
-  mov dh, 'v'
-  mov dl, '2'
-  jmp v_case
+  mov dh, 'd'
+  mov dl, '0'
+  jmp d_case
 
   xor ax, ax
   mov al, 'd'
@@ -85,7 +85,7 @@ draw_winner_line:
   ;je v_case
 
   d_case: 
-    cmp dl, 0x0
+    cmp dl, '1'
     je d_case_1
     d_case_0:
       draw_line X_EXTREME_0, Y_EXTREME_1, X_EXTREME_1, Y_EXTREME_0, intense_white
