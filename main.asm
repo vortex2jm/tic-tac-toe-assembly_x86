@@ -9,17 +9,16 @@
 ; Data
 ;----------------------------------------------------
 segment data  
-  ; Init.
+  ; Initialization
   title                db 'TIC TAC TOE O/X'    ;15 
   cor		           db		intense_white
   prev_video_mode      db		0x0
-  start_message        db 'The game has been started!' ;26
-  motivational_message db 'May the best win!         ',   ;26
+  start_message        db 'The game has been started!'   ;26
    
   ; move management
-  last_play_symbol       db    0x0
-  current_play_symbol    db    0x0
-  current_play_lc        db 0x0, 0x0
+  last_play_symbol       db    0x0              ; X/C
+  current_play_symbol    db    0x0              ; X/C
+  current_play_lc        db    0x0, 0x0         ;line&column
 
   player_bitmask  dw    0x0
   player_x_moves  dw    0x0
@@ -27,10 +26,11 @@ segment data
   table_moves     dw    0x0
 
   ; Messages
-  player_x_won_msg    db 'PLAYER X WON!             '  ;26
-  player_o_won_msg    db 'PLAYER O WON!             '  ;26  
-  full_table_message  db 'BOARD FULL, NO WINNER!    '   ;26
-  winner_line         db  0x0, 0x0
+  player_x_won_msg     db 'PLAYER X WON!             '  ;26
+  player_o_won_msg     db 'PLAYER O WON!             '  ;26  
+  full_table_message   db 'BOARD FULL, NO WINNER!    '   ;26
+  winner_line          db  0x0, 0x0
+  motivational_message db 'May the best win!         '   ;26
 
   command_error_msg   db 'INVALID COMMAND!          '   ;26
   repeated_move_msg   db 'PLAY ANOTHER SYMBLE!      '   ;26 
@@ -41,10 +41,8 @@ segment data
   ; Graphic functions management
   linha   	      dw  	0x0
   coluna  	      dw  	0x0
-  deltax		  dw	0x0
-  deltay		  dw	0x0
-
-  tests db 'oioioioioioio', 0xa, '$'
+  deltax		      dw	0x0
+  deltay		      dw	0x0
 
 segment stack stack						
   resb 512	; 512 bytes for stack
@@ -87,7 +85,7 @@ segment code
     je  end_game
     jmp entrypoint
   
-  ; Closing game
+  ; Closing game if char = s
   end_game:
     ; Returning main video mode
     mov al, [prev_video_mode]
@@ -98,12 +96,12 @@ segment code
     mov ah, 0x4c
     int 0x21
   
-  ; playing
+  ; Playing
   start_game:
     call draw_board
     call draw_fields
     print_message 2, 32, title, 15, magenta
-    print_message MESSAGE_FIELD_L, MESSAGE_FIELD_C, start_message,26 , yellow
+    print_message MESSAGE_FIELD_L, MESSAGE_FIELD_C, start_message ,26 ,yellow
 
   ; Input validation
   ; This approach validates one each time
@@ -162,11 +160,12 @@ segment code
   
   ; If current play has already been played in last play
   invalid_play:
-    print_message MESSAGE_FIELD_L, MESSAGE_FIELD_C,repeated_move_msg , 26, red
+    print_message MESSAGE_FIELD_L, MESSAGE_FIELD_C, repeated_move_msg , 26, red
     jmp command_buffer
 
+  ; If current play try to move over a held position
   invalid_play_case2:
-    print_message MESSAGE_FIELD_L, MESSAGE_FIELD_C,position_held_msg , 26, red
+    print_message MESSAGE_FIELD_L, MESSAGE_FIELD_C, position_held_msg , 26, red
     jmp command_buffer
 
   draw_move:

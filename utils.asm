@@ -4,15 +4,16 @@
 %include "macros.asm"
 
 ;--------------------------------------------------
-; End of match function
+; End of match function (It checks if someone wins)
 ;--------------------------------------------------
 check_end_of_match:
   push ax
 
+  ; Check both players
   call handle_player_x_won
   call handle_player_o_won
 
-  ; check if table is full
+  ; Check if table is full (tie)
   mov ax, [table_moves]
   and ax, TABLE_FULL
   cmp ax, TABLE_FULL
@@ -70,7 +71,6 @@ handle_player_x_won:
 ;--------------------------------------------------
 ; draws a line in the sequence that won the game
 draw_winner_line:
-
   ; get drawing information from variable
   mov dh, [winner_line]
   mov dl, [winner_line + 1]
@@ -163,14 +163,12 @@ draw_fields:
   draw_line 470,25 ,470, 50, intense_white
   ret
 
-
-
 ;--------------------------------------------------
 ; Finish match function
 ;--------------------------------------------------
 finish_match:
-  mov cx, 0xffff
-  
+  ; Wait a time before show the next message
+  mov cx, 0xffff  
   for:
     push cx
     mov cx, 0x8f

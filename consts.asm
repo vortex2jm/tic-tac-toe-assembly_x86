@@ -1,6 +1,8 @@
 %ifndef consts_
 %define consts_
 
+; bit masks
+; These masks represent possible win conditions on the board
 %define TABLE_FULL     0x01ff
 %define PLAYER_WON_012 0x0007 
 %define PLAYER_WON_345 0x0038
@@ -11,6 +13,9 @@
 %define PLAYER_WON_741 0x0092
 %define PLAYER_WON_852 0x0124
 
+;-----------------------------------------
+; Some const coordinates
+;-----------------------------------------
 ; board vertexes
 %define X_EXTREME_0 170    
 %define X_EXTREME_1 470
@@ -32,6 +37,7 @@
 %define COMMAND_FIELD_C 23
 %define MESSAGE_FIELD_L 27
 %define MESSAGE_FIELD_C 23
+;-----------------------------------------
 
 ; Saving colors
 %define  black		   		0x0
