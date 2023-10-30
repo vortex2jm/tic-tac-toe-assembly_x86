@@ -27,6 +27,12 @@
 %define HORIZ_Y_SECOND_LINE_BASE 250
 %define HORIZ_Y_THIRD_LINE_BASE 150
 
+; Fields coordinates
+%define COMMAND_FIELD_L 25
+%define COMMAND_FIELD_C 23
+%define MESSAGE_FIELD_L 27
+%define MESSAGE_FIELD_C 23
+
 ; Saving colors
 %define  black		   		0x0
 %define  blue		   		0x1

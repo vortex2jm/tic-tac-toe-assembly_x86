@@ -4,28 +4,6 @@
 
 %include "consts.asm"
 
-; finish match(msg_to_display)
-%macro finish_match 1
-  ; print message
-  mov dx, %1
-  mov ah, 0x9
-  int 0x21
-
-  ;Press any key
-  mov ah, 0x7
-  int 0x21
-
-  ; Returning main video mode
-  mov al, [prev_video_mode]
-  mov ah, 0
-  int 10h
-
-  ; exit
-  mov ah, 0x4c
-  int 0x21
-%endmacro
-
-
 ; verify_player_won(register_to_compare, label_to_jump)
 %macro check_player_won 2
   compare_condition %1, PLAYER_WON_012, %2, 'v', '0'  
@@ -56,6 +34,31 @@
 
   ; in case they're not equal
   not_equal_%%$$:
+%endmacro
+
+; print_message(line, column, msg_addr, char_amount, color)
+%macro print_message 5
+  push ax
+  push bx
+  push cx
+  push dx
+  mov cx, %4
+  mov bx, 0
+  mov dh, %1
+  mov dl, %2
+  mov byte[cor], %5
+
+  inter_%%$$:
+  call cursor
+  mov al, [%3+bx]
+  call caracter
+  inc bx
+  inc dl
+  loop inter_%%$$
+  pop dx
+  pop cx
+  pop bx
+  pop ax
 %endmacro
 
 ; check_position_taken(table_moves, positon_bitmask, move_taken_label, move_not_taken_label)
@@ -98,42 +101,6 @@
 	push		ax
 	call		line
 %endmacro
-
-; draw_circle(xc, yc, r, color)
-%macro draw_circle 4 
-	mov byte[cor], %4
-	mov		ax, %1
-	push		ax
-	mov		ax, %2
-	push		ax
-	mov		ax, %3
-	push		ax
-	call circle
-%endmacro
-
-; draw_x(x1, y1, x2, y2, color)
-%macro draw_x 5
-	mov byte[cor], %5
-	mov ax, %1
-	push	ax
-	mov ax, %2
-	push	ax
-	mov ax, %3
-	push	ax
-	mov ax, %4
-	push	ax
-	call line
-	mov ax, %1
-	push	ax
-	mov ax, %4
-	push	ax
-	mov ax, %3
-	push	ax
-	mov ax, %2
-	push	ax
-	call line
-%endmacro
-
 
 ;draw_circle_on_board(x, y, r, color)
 %macro draw_circle_on_board 4
