@@ -9,14 +9,14 @@
 check_end_of_match:
   push ax
 
+  call handle_player_x_won
+  call handle_player_o_won
+
   ; check if table is full
   mov ax, [table_moves]
   and ax, TABLE_FULL
   cmp ax, TABLE_FULL
   je table_full
-
-  call handle_player_x_won
-  call handle_player_o_won
 
   jmp check_end_of_match_ret
 
