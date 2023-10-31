@@ -1,7 +1,6 @@
 ; GRUPO
 ; João Paulo Moura Clevelares
 ; Kevin Carvalho de Jesus
-
 %include "macros.asm"
 %include "consts.asm"
 
@@ -14,7 +13,9 @@ segment data
   cor		           db		intense_white
   prev_video_mode      db		0x0
   start_message        db 'The game has been started!'   ;26
-   
+  buffer: times 1024 db '0'
+  buffer_ptr db 0x0
+
   ; move management
   last_play_symbol       db    0x0              ; X/C
   current_play_symbol    db    0x0              ; X/C
@@ -31,10 +32,12 @@ segment data
   full_table_message   db 'BOARD FULL, NO WINNER!    '   ;26
   winner_line          db  0x0, 0x0
   motivational_message db 'May the best win!         '   ;26
+  buffer_overflow_msg  db 'BUFFER OVERFLOW!          '
 
   command_error_msg   db 'INVALID COMMAND!          '   ;26
   repeated_move_msg   db 'PLAY ANOTHER SYMBLE!      '   ;26 
   position_held_msg   db 'POSITION HELD!            '   ;26
+  input_error_flag    db 0x0
 
   press_key_msg       db 'PRESS ANY KEY TO CLOSE    ' ;26
   
@@ -107,19 +110,42 @@ segment code
   ; This approach validates one each time
   command_buffer:
     ; check end of match prematurelly
+    mov [buffer_ptr], byte 0x0
     call check_end_of_match
 
+    input_reading:
+      xor bx, bx
+      mov bl, [buffer_ptr]
+      mov ah, 0x7
+      int 0x21
+
+      cmp al, 0x8
+      jne not_bspc
+
+      ; If char = backspac3
+      cmp bl, 0x0
+      je reset_input
+      dec bl
+      mov [buffer+bx], byte '0'
+      mov [buffer_ptr], bl
+      jmp reset_input
+
+      not_bspc:
+      mov [buffer+bx], al
+      inc bl
+      mov [buffer_ptr], bl
+      cmp al, 0xd
+      reset_input:
+      jne input_reading
+      
     ; Parsing first character (letter)
-    mov ah, 0x7
-    int 0x21
-    mov ah, 'X'
-    cmp ah, al
+    mov al, byte[buffer]
+    cmp al, 'X'
     je validate_alternate_play     ; if letter equal X, jump to validate repeated plays
 
     ; If commando is not X
     validate_letter_command:
-    mov ah, 'C'
-    cmp ah, al    
+    cmp al, 'C'    
     jne invalid_command     ; Command needs to be X or C, else is an invalid command
 
     ; Verifying repeated X or C plays
@@ -137,35 +163,40 @@ segment code
     mov cx, 0x2     ; Loop counter
     mov bx, 0x0
     lc_parse:
-    mov ah, 0x7
-    int 0x21
-    mov ah, '4'             ; Checks if number is greater or equal 4
-    cmp al, ah
-    jge invalid_command
-    mov ah, '0'             ; Checks if the number is less or equal 0
-    cmp al, ah
+    mov al, byte[buffer+bx+1]              
+    cmp al, '4'             ; Checks if number is greater or equal 4
+    jge invalid_command           
+    cmp al, '0'               ; Checks if the number is less or equal 0
     jle invalid_command
     xor ah, ah
     push ax
     mov [current_play_lc+bx], al
     inc bx
     loop lc_parse
+    mov al, [buffer+3]
+    cmp al, 0xd
+    jne invalid_command
+
     print_message COMMAND_FIELD_L, COMMAND_FIELD_C, current_play_symbol, 3, cyan
     jmp draw_move   ; Jumping over validation exceptions
   
   ; If command is not X or C, print error message and wait for another input
   invalid_command:
-    print_message MESSAGE_FIELD_L, MESSAGE_FIELD_C,command_error_msg , 26, red 
+    print_message MESSAGE_FIELD_L, MESSAGE_FIELD_C, command_error_msg, 26, red
     jmp command_buffer
   
   ; If current play has already been played in last play
   invalid_play:
-    print_message MESSAGE_FIELD_L, MESSAGE_FIELD_C, repeated_move_msg , 26, red
+    print_message MESSAGE_FIELD_L, MESSAGE_FIELD_C, repeated_move_msg, 26, red
     jmp command_buffer
 
   ; If current play try to move over a held position
   invalid_play_case2:
-    print_message MESSAGE_FIELD_L, MESSAGE_FIELD_C, position_held_msg , 26, red
+    print_message MESSAGE_FIELD_L, MESSAGE_FIELD_C, position_held_msg, 26, red
+    jmp command_buffer
+
+  buffer_overflow:
+    print_message MESSAGE_FIELD_L, MESSAGE_FIELD_C, buffer_overflow_msg, 26, red
     jmp command_buffer
 
   draw_move:
