@@ -22,14 +22,14 @@ check_end_of_match:
   jmp check_end_of_match_ret
 
   table_full:
-    print_message MESSAGE_FIELD_L, MESSAGE_FIELD_C, full_table_message, 26, red
-    call finish_match
+  print_message MESSAGE_FIELD_L, MESSAGE_FIELD_C, full_table_message, 26, red
+  call finish_match
 
   check_end_of_match_ret:
-    pop ax
-    ret
+  pop ax
+  ret
 
-handle_player_o_won: 
+  handle_player_o_won: 
   push ax
   ; check if player o has won
   mov ax, [player_o_moves]
@@ -37,17 +37,17 @@ handle_player_o_won:
   jmp handle_player_o_won_ret
 
   player_o_won_match:
-    jmp draw_winner_line
+  jmp draw_winner_line
 
-    finish_o:
-      print_message MESSAGE_FIELD_L, MESSAGE_FIELD_C, player_o_won_msg, 26, light_green
-      call finish_match
+  finish_o:
+  print_message MESSAGE_FIELD_L, MESSAGE_FIELD_C, player_o_won_msg, 26, light_green
+  call finish_match
 
   handle_player_o_won_ret
-    pop ax
-    ret
+  pop ax
+  ret
 
-handle_player_x_won: 
+  handle_player_x_won: 
   push ax
   ; check if player x has won
   mov ax, [player_x_moves]
@@ -55,15 +55,15 @@ handle_player_x_won:
   jmp handle_player_x_won_ret
 
   player_x_won_match:
-    jmp draw_winner_line
+  jmp draw_winner_line
 
-    finish_x: 
-    print_message MESSAGE_FIELD_L, MESSAGE_FIELD_C, player_x_won_msg ,26 , light_green
-    call finish_match
+  finish_x: 
+  print_message MESSAGE_FIELD_L, MESSAGE_FIELD_C, player_x_won_msg ,26 , light_green
+  call finish_match
 
   handle_player_x_won_ret:
-    pop ax
-    ret
+  pop ax
+  ret
 
 
 ;--------------------------------------------------
@@ -83,52 +83,52 @@ draw_winner_line:
   jmp v_case
 
   d_case: 
-    cmp dl, '1'
-    je d_case_1
-    d_case_0:
-      draw_line X_EXTREME_0, Y_EXTREME_1, X_EXTREME_1, Y_EXTREME_0, light_green
-      jmp end
-    d_case_1:
-      draw_line X_EXTREME_1, Y_EXTREME_1, X_EXTREME_0, Y_EXTREME_0, light_green
-      jmp end
+  cmp dl, '1'
+  je d_case_1
+  d_case_0:
+  draw_line X_EXTREME_0, Y_EXTREME_1, X_EXTREME_1, Y_EXTREME_0, light_green
+  jmp end
+  d_case_1:
+  draw_line X_EXTREME_1, Y_EXTREME_1, X_EXTREME_0, Y_EXTREME_0, light_green
+  jmp end
   
   h_case:
-    cmp dl, '1'
-    je h_case_1
-    cmp dl, '2' 
-    je h_case_2
-    h_case_0:
-      draw_line X_EXTREME_0, HORIZ_Y_BASE, X_EXTREME_1, HORIZ_Y_BASE, light_green
-      jmp end
-    h_case_1:
-      draw_line X_EXTREME_0, HORIZ_Y_SECOND_LINE_BASE, X_EXTREME_1, HORIZ_Y_SECOND_LINE_BASE, light_green
-      jmp end
-    h_case_2:
-      draw_line X_EXTREME_0, HORIZ_Y_THIRD_LINE_BASE, X_EXTREME_1, HORIZ_Y_THIRD_LINE_BASE, light_green
-      jmp end
+  cmp dl, '1'
+  je h_case_1
+  cmp dl, '2' 
+  je h_case_2
+  h_case_0:
+  draw_line X_EXTREME_0, HORIZ_Y_BASE, X_EXTREME_1, HORIZ_Y_BASE, light_green
+  jmp end
+  h_case_1:
+  draw_line X_EXTREME_0, HORIZ_Y_SECOND_LINE_BASE, X_EXTREME_1, HORIZ_Y_SECOND_LINE_BASE, light_green
+  jmp end
+  h_case_2:
+  draw_line X_EXTREME_0, HORIZ_Y_THIRD_LINE_BASE, X_EXTREME_1, HORIZ_Y_THIRD_LINE_BASE, light_green
+  jmp end
 
   v_case:
-    cmp dl, '1'
-    je v_case_1
-    cmp dl, '2' 
-    je v_case_2
-    v_case_0:
-      draw_line VERT_X_BASE, Y_EXTREME_0, VERT_X_BASE, Y_EXTREME_1, light_green 
-      jmp end
-    v_case_1:
-      draw_line VERT_X_SECOND_COLUMN_BASE, Y_EXTREME_0, VERT_X_SECOND_COLUMN_BASE, Y_EXTREME_1, light_green 
-      jmp end
-    v_case_2:
-      draw_line VERT_X_THIRD_COLUMN_BASE, Y_EXTREME_0, VERT_X_THIRD_COLUMN_BASE, Y_EXTREME_1, light_green 
+  cmp dl, '1'
+  je v_case_1
+  cmp dl, '2' 
+  je v_case_2
+  v_case_0:
+  draw_line VERT_X_BASE, Y_EXTREME_0, VERT_X_BASE, Y_EXTREME_1, light_green 
+  jmp end
+  v_case_1:
+  draw_line VERT_X_SECOND_COLUMN_BASE, Y_EXTREME_0, VERT_X_SECOND_COLUMN_BASE, Y_EXTREME_1, light_green 
+  jmp end
+  v_case_2:
+  draw_line VERT_X_THIRD_COLUMN_BASE, Y_EXTREME_0, VERT_X_THIRD_COLUMN_BASE, Y_EXTREME_1, light_green 
 
   end:
-    mov ax, [current_play_symbol]
-    xor ah, ah
-    cmp ax, 'X'
-    je jump_finish_x
-    jmp finish_o
-    jump_finish_x:
-    jmp finish_x
+  mov ax, [current_play_symbol]
+  xor ah, ah
+  cmp ax, 'X'
+  je jump_finish_x
+  jmp finish_o
+  jump_finish_x:
+  jmp finish_x
 
 
 ;--------------------------------------------------
@@ -170,16 +170,17 @@ finish_match:
   ; Wait a time before show the next message
   mov cx, 0xffff  
   for:
-    push cx
-    mov cx, 0x8f
-    for_2:
-      loop for_2
-      pop cx
-      loop for 
+  push cx
+  mov cx, 0x8f
+  for_2:
+  loop for_2
+  pop cx
+  loop for 
 
+  ; Press any key to close (msg)
   print_message MESSAGE_FIELD_L, MESSAGE_FIELD_C, press_key_msg, 26, yellow
 
-  ;Press any key
+  ; Open buffer to receive a character
   mov ah, 0x7
   int 0x21
 
@@ -224,12 +225,12 @@ convert_move_to_bit_mask:
   jmp shift_case
 
   shift_case:
-    mov ah, 0x0
-    ; rotation value
-    mov cl, al
-    mov al, 0x1
-    shl al, cl
-    jmp final
+  mov ah, 0x0
+  ; rotation value
+  mov cl, al
+  mov al, 0x1
+  shl al, cl
+  jmp final
 
   edge_case: 
   mov ax, 0x0100

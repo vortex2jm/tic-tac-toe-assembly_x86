@@ -10,21 +10,21 @@
 segment data  
   ; Initialization
   title                db 'TIC TAC TOE O/X'    ;15 
-  cor		           db		intense_white
-  prev_video_mode      db		0x0
+  cor		               db intense_white
+  prev_video_mode      db 0x0
   start_message        db 'The game has been started!'   ;26
-  buffer: times 1024 db '0'
-  buffer_ptr db 0x0
+  buffer: times 1024   db '0'
+  buffer_ptr           db 0x0
 
   ; move management
-  last_play_symbol       db    0x0              ; X/C
-  current_play_symbol    db    0x0              ; X/C
-  current_play_lc        db    0x0, 0x0         ;line&column
+  last_play_symbol       db 0x0              ; X/C
+  current_play_symbol    db 0x0              ; X/C
+  current_play_lc        db 0x0, 0x0         ;line&column
 
-  player_bitmask  dw    0x0
-  player_x_moves  dw    0x0
-  player_o_moves  dw    0x0
-  table_moves     dw    0x0
+  player_bitmask  dw  0x0
+  player_x_moves  dw  0x0
+  player_o_moves  dw  0x0
+  table_moves     dw  0x0
 
   ; Messages
   player_x_won_msg     db 'PLAYER X WON!             '  ;26
@@ -42,8 +42,8 @@ segment data
   press_key_msg       db 'PRESS ANY KEY TO CLOSE    ' ;26
   
   ; Graphic functions management
-  linha   	      dw  	0x0
-  coluna  	      dw  	0x0
+  linha   	      dw  0x0
+  coluna  	      dw  0x0
   deltax		      dw	0x0
   deltay		      dw	0x0
 
@@ -56,7 +56,9 @@ stacktop:
 ;----------------------------------------------------
 segment code
 ..start:
-  ;Setting up segment registers
+  ;------------------------------------
+  ; Setting up
+  ;------------------------------------
   mov 	ax,data						
   mov 	ds,ax
   mov 	ax,stack	
@@ -73,6 +75,9 @@ segment code
   mov     	ah,0
   int     	10h	
 
+  ;------------------------------------
+  ; First input
+  ;------------------------------------
   ; Verifying first input
   ; if char = c -> create new game
   ; if char = s -> end game
@@ -87,7 +92,10 @@ segment code
     cmp ah, al
     je  end_game
     jmp entrypoint
-  
+
+  ;------------------------------------
+  ; Exit
+  ;------------------------------------
   ; Closing game if char = s
   end_game:
     ; Returning main video mode
@@ -99,46 +107,60 @@ segment code
     mov ah, 0x4c
     int 0x21
   
+  ;------------------------------------
   ; Playing
+  ;------------------------------------
   start_game:
+    ;------------------------------------
+    ; Initialization
+    ;------------------------------------
     call draw_board
     call draw_fields
     print_message 2, 32, title, 15, magenta
     print_message MESSAGE_FIELD_L, MESSAGE_FIELD_C, start_message ,26 ,yellow
 
-  ; Input validation
-  ; This approach validates one each time
-  command_buffer:
-    ; check end of match prematurelly
+    ;------------------------------------
+    ; Buffer started
+    ;------------------------------------
+    command_buffer:
+    ; Reset buffer pointer
     mov [buffer_ptr], byte 0x0
+    
+    ; check end of match prematurelly
     call check_end_of_match
 
     input_reading:
-      xor bx, bx
-      mov bl, [buffer_ptr]
-      mov ah, 0x7
-      int 0x21
+    xor bx, bx
+    mov bl, [buffer_ptr]
+    mov ah, 0x7
+    int 0x21
 
-      cmp al, 0x8
-      jne not_bspc
+    ; Verify if char is backspace
+    cmp al, 0x8
+    jne not_bspc
 
-      ; If char = backspac3
-      cmp bl, 0x0
-      je reset_input
-      dec bl
-      mov [buffer+bx], byte '0'
-      mov [buffer_ptr], bl
-      jmp reset_input
+    ; If char is backspace
+    cmp bl, 0x0
+    je reset_input
+    dec bl
+    mov [buffer+bx], byte '0'
+    mov [buffer_ptr], bl
+    jmp reset_input
 
-      not_bspc:
-      mov [buffer+bx], al
-      inc bl
-      mov [buffer_ptr], bl
-      cmp al, 0xd
-      reset_input:
-      jne input_reading
-      
+    ; If char is not backspace
+    not_bspc:
+    mov [buffer+bx], al
+    inc bl
+    mov [buffer_ptr], bl
+    cmp al, 0xd
+
+    ; Back to reading
+    reset_input:
+    jne input_reading
+    
+    ;------------------------------------
     ; Parsing first character (letter)
+    ;------------------------------------
     mov al, byte[buffer]
     cmp al, 'X'
     je validate_alternate_play     ; if letter equal X, jump to validate repeated plays
@@ -148,17 +170,20 @@ segment code
     cmp al, 'C'    
     jne invalid_command     ; Command needs to be X or C, else is an invalid command
 
+    ;------------------------------------
     ; Verifying repeated X or C plays
+    ;------------------------------------
     validate_alternate_play:
     mov [current_play_symbol], al   
     mov ah, [last_play_symbol]      
     cmp ah, al
     je invalid_play
-    ;mov [last_play_symbol], al
     xor ah, ah
     push ax     ; Pushing move into stack to be used in another function
 
+    ;------------------------------------
     ; Parsing line and comlumn
+    ;------------------------------------
     validate_numbers:
     mov cx, 0x2     ; Loop counter
     mov bx, 0x0
@@ -173,33 +198,46 @@ segment code
     mov [current_play_lc+bx], al
     inc bx
     loop lc_parse
+
+    ;------------------------------------
+    ; ENTER validation
+    ;------------------------------------
     mov al, [buffer+3]
     cmp al, 0xd
     jne invalid_command
 
+    ;------------------------------------
+    ; Printing command
+    ;------------------------------------
     print_message COMMAND_FIELD_L, COMMAND_FIELD_C, current_play_symbol, 3, cyan
     jmp draw_move   ; Jumping over validation exceptions
-  
-  ; If command is not X or C, print error message and wait for another input
-  invalid_command:
+
+    ;------------------------------------
+    ; Printing error messages
+    ;------------------------------------
+    ; If command is not X or C, print error message and wait for another input
+    invalid_command:
     print_message MESSAGE_FIELD_L, MESSAGE_FIELD_C, command_error_msg, 26, red
     jmp command_buffer
   
-  ; If current play has already been played in last play
-  invalid_play:
+    ; If current play has already been played in last play
+    invalid_play:
     print_message MESSAGE_FIELD_L, MESSAGE_FIELD_C, repeated_move_msg, 26, red
     jmp command_buffer
 
-  ; If current play try to move over a held position
-  invalid_play_case2:
+    ; If current play try to move over a held position
+    invalid_play_case2:
     print_message MESSAGE_FIELD_L, MESSAGE_FIELD_C, position_held_msg, 26, red
     jmp command_buffer
 
-  buffer_overflow:
-    print_message MESSAGE_FIELD_L, MESSAGE_FIELD_C, buffer_overflow_msg, 26, red
-    jmp command_buffer
+    ;buffer_overflow:
+    ;print_message MESSAGE_FIELD_L, MESSAGE_FIELD_C, buffer_overflow_msg, 26, red
+    ;jmp command_buffer
 
-  draw_move:
+    ;------------------------------------
+    ; Validating board and drawing symbols
+    ;------------------------------------
+    draw_move:
     ; converting moves to a range of 0-3
     ; l value is in cx
     ; c value is in dx
@@ -209,16 +247,20 @@ segment code
     sub cx, 0x31    ; Parsing ASCII to int
 
     call convert_move_to_bit_mask
+    
     ; save player player_bitmask to a variable
     mov [player_bitmask], ax
-
     call check_end_of_match
 
     ; check if position has already been taken
     check_position_taken table_moves, player_bitmask, invalid_play_case2, move_not_taken
+    
+    ; If position hasn't been taken
     move_not_taken:
     mov al, [current_play_symbol]  ; If valid command, process this play (Avoid bug)
     mov [last_play_symbol], al
+
+    ; Printing motivational message
     print_message MESSAGE_FIELD_L, MESSAGE_FIELD_C, motivational_message,26 ,yellow
 
     ; clean up ax
@@ -231,24 +273,24 @@ segment code
     jmp invalid_play
 
     should_draw_circle: 
-      mov ax, [player_bitmask]
+    mov ax, [player_bitmask]
 
-      ; save moves
-      save_move player_o_moves
-      save_move table_moves
+    ; save moves
+    save_move player_o_moves
+    save_move table_moves
 
-      draw_circle_on_board dx, cx, 20, red
-      jmp command_buffer
+    draw_circle_on_board dx, cx, 20, red
+    jmp command_buffer
 
     should_draw_x: 
-      mov ax, [player_bitmask]
+    mov ax, [player_bitmask]
 
-      ; save moves
-      save_move player_x_moves
-      save_move table_moves
+    ; save moves
+    save_move player_x_moves
+    save_move table_moves
 
-      draw_x_on_board dx, cx, 20, red
-      jmp command_buffer
+    draw_x_on_board dx, cx, 20, red
+    jmp command_buffer
 
   %include "utils.asm"
 
