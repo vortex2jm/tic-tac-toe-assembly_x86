@@ -13,8 +13,9 @@ segment data
   cor		               db intense_white
   prev_video_mode      db 0x0
   start_message        db 'The game has been started!'   ;26
-  buffer: times 1024   db '0'
+  buffer: times 1023   db 0x0
   buffer_ptr           db 0x0
+  void_cf: times 30    db 0x20
 
   ; move management
   last_play_symbol       db 0x0              ; X/C
@@ -40,7 +41,7 @@ segment data
   input_error_flag    db 0x0
 
   press_key_msg       db 'PRESS ANY KEY TO CLOSE    ' ;26
-  
+
   ; Graphic functions management
   linha   	      dw  0x0
   coluna  	      dw  0x0
@@ -132,6 +133,18 @@ segment code
     input_reading:
     xor bx, bx
     mov bl, [buffer_ptr]
+
+    cmp bl, 0x1e
+    jne read_char
+    jmp buffer_overflow
+    invalid_read_loop:
+    mov ah, 0x7
+    int 0x21
+    cmp al, 0x8
+    je bspc
+    jmp invalid_read_loop
+
+    read_char:
     mov ah, 0x7
     int 0x21
 
@@ -140,10 +153,11 @@ segment code
     jne not_bspc
 
     ; If char is backspace
+    bspc:
     cmp bl, 0x0
     je reset_input
     dec bl
-    mov [buffer+bx], byte '0'
+    mov [buffer+bx], byte 0x0
     mov [buffer_ptr], bl
     jmp reset_input
 
@@ -152,12 +166,21 @@ segment code
     mov [buffer+bx], al
     inc bl
     mov [buffer_ptr], bl
-    cmp al, 0xd
+    cmp al, 0xd             ; If key is ENTER
 
     ; Back to reading
     reset_input:
     jne input_reading
     
+    ;------------------------------------
+    ; Printing command
+    ;------------------------------------
+    ; Reset command field
+    print_message COMMAND_FIELD_L, COMMAND_FIELD_C, void_cf, 30, black 
+    ; Printing new message
+    dec bx
+    print_message COMMAND_FIELD_L, COMMAND_FIELD_C, buffer, bx, cyan
+
     ;------------------------------------
     ; Parsing first character (letter)
     ;------------------------------------
@@ -200,16 +223,11 @@ segment code
     loop lc_parse
 
     ;------------------------------------
-    ; ENTER validation
+    ; ENTER KEY validation
     ;------------------------------------
     mov al, [buffer+3]
     cmp al, 0xd
     jne invalid_command
-
-    ;------------------------------------
-    ; Printing command
-    ;------------------------------------
-    print_message COMMAND_FIELD_L, COMMAND_FIELD_C, current_play_symbol, 3, cyan
     jmp draw_move   ; Jumping over validation exceptions
 
     ;------------------------------------
@@ -230,9 +248,9 @@ segment code
     print_message MESSAGE_FIELD_L, MESSAGE_FIELD_C, position_held_msg, 26, red
     jmp command_buffer
 
-    ;buffer_overflow:
-    ;print_message MESSAGE_FIELD_L, MESSAGE_FIELD_C, buffer_overflow_msg, 26, red
-    ;jmp command_buffer
+    buffer_overflow:
+    print_message MESSAGE_FIELD_L, MESSAGE_FIELD_C, buffer_overflow_msg, 26, red
+    jmp invalid_read_loop
 
     ;------------------------------------
     ; Validating board and drawing symbols
