@@ -134,7 +134,7 @@ segment code
     xor bx, bx
     mov bl, [buffer_ptr]
 
-    cmp bl, 0x1e
+    cmp bl, 0x1e    ; maximum buffer size
     jne read_char
     jmp buffer_overflow
     invalid_read_loop:
@@ -155,8 +155,12 @@ segment code
     ; If char is backspace
     bspc:
     cmp bl, 0x0
-    je reset_input
+    je input_reading
     dec bl
+
+    cmp bl, 0x0
+    je input_reading
+    
     mov [buffer+bx], byte 0x0
     mov [buffer_ptr], bl
     jmp reset_input
