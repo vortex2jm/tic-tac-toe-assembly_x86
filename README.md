@@ -1,6 +1,9 @@
 ## Tic tac toe - assembly x86_16 :construction:
 
+## Instructions
 ### How to run
+This program should be executed in Windows using DosBox environment
+
  - Compile **main.asm** using NASM as we did on the labs:
 ```
 nasm main
@@ -14,6 +17,50 @@ freelink main
 main
 ```
 
+### How to play
+It starts in a black screen. This screen wait for an input from your keyboard. Whatever the input, the screen remains black unless you type "**s**" or "**c**".
+
+ - "**s**" is for close the game
+ - "**c**" is for start the game
+
+When the game starts, you'll see a screen like this:
+
+![](assets/start-screen.png)
+
+#### It has 2 options to play:
+ - X
+ - C
+
+_The character **C** represents the circle._
+
+#### The move should has 3 characters:
+ - symbol (X/C)
+ - line (1, 2 or 3)
+ - column (1, 2 or 3)
+
+and the move happens when you type the **ENTER** key
+#
+
+_For example:_
+**X11** generates the move below:
+
+![](assets/X11.png)
+
+ - You can't move over a held position or play with the same symbol twice. If you do this, a message will appear on the screen and your move won't be processed.
+
+![](assets/held-position.png)
+
+ - There's a case which it gets a buffer overflow. In this case, a message will appear on the screen and your input won't be processed. You can delete all the characters and type again, or delete one character and type **ENTER** to print the wrong command and reset the buffer.
+
+![](assets/invalid-command.png)
+
+#
+
+When the game ends, a message will appear on the screen showing the winner if is the case. Wait a time and a message "**press any key to close**" will appear and you exit the game.
+
+![](assets/win.png)
+
+## Implementation details
 ### Player moves and board masks
 Each playe move and all the positions that have already been played are
 represented as 2 bytes, where the least significant 9 bytes represent the positions
@@ -26,7 +73,7 @@ by one of the players. The same idea applies for each player move.
 We represent the player moves as well as the board positions as follows: 
 
 **Look the image table.png**
-![](https://github.com/KPMGE/tic-tac-toe-assembly_x86/blob/master/table.png)
+![](assets/table.png)
 
 board/moves: 0000000x.xxxxxxxx
 
