@@ -1,5 +1,19 @@
 ## Tic tac toe - assembly x86_16 :construction:
 
+### How to run
+ - Compile **main.asm** using NASM as we did on the labs:
+```
+nasm main
+```
+ - Link **.o** files using _freelink_:
+```
+freelink main
+```
+ - Run the game:
+```
+main
+```
+
 ### Player moves and board masks
 Each playe move and all the positions that have already been played are
 represented as 2 bytes, where the least significant 9 bytes represent the positions
@@ -11,6 +25,7 @@ by one of the players. The same idea applies for each player move.
 #### Representation:
 We represent the player moves as well as the board positions as follows: 
 
+**Look the image table.png**
 ![](https://github.com/KPMGE/tic-tac-toe-assembly_x86/blob/master/table.png)
 
 board/moves: 0000000x.xxxxxxxx
